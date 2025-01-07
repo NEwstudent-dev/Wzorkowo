@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wzorkowo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #d2b48c;
+            margin: 0;
+            padding: 0;
+        }
+        .top-bar {
+            background-color: #deb887;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0 0 10px 10px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .top-bar h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        .top-bar .buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .top-bar button {
+            background-color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .top-bar button:hover {
+            background-color: #ccc;
+        }
+        .container {
+            width: 80%;
+            margin: 80px auto 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .item img {
+            width: 50%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .item .text {
+            width: 50%;
+            padding-left: 20px;
+            text-align: left;
+        }
+        .item .text p {
+            margin: 0 0 10px;
+            font-size: 16px;
+            color: #333;
+        }
+        .item .text .price {
+            font-weight: bold;
+            font-size: 18px;
+            color: #000;
+        }
+        .item .text button {
+            background-color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .item .text button:hover {
+            background-color: #ccc;
+        }
+        #basketModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1001;
+        }
+        #basketModal .basket-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        #basketModal .basket-item img {
+            width: 50px;
+            height: auto;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+        #basketModal .basket-item .details {
+            flex-grow: 1;
+            text-align: left;
+        }
+        #basketModal .basket-item .details p {
+            margin: 0;
+        }
+        #basketModal .basket-item .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        #basketModal .basket-item button {
+            background-color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        #basketModal .basket-item button:hover {
+            background-color: #ccc;
+        }
+        #basketModal .total {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #basketModal .checkout-btn {
+            background-color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        #basketModal .checkout-btn:hover {
+            background-color: #ccc;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        #checkoutModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1002;
+        }
+        #checkoutModal h2 {
+            margin-top: 0;
+        }
+        #checkoutModal form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #checkoutModal input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #checkoutModal .checkout-btn {
+            background-color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        #checkoutModal .checkout-btn:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>WZORKOWO</h1>
+        <div class="buttons">
+            <button onclick="toggleBasket()">Basket</button>
+            <button onclick="proceedToCheckout()">Check Out</button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="item">
+            <img src="Photo calander.jpg" alt="Calendar Image 1">
+            <div class="text">
+                <p>This is a beautiful calendar to keep track of your important dates.</p>
+                <p class="price">Price: zł49.99</p>
+                <button onclick="addToBasket('Calendar Image 1', 49.99)">Add to Basket</button>
+            </div>
+        </div>
+        <div class="item">
+            <img src="House calander.jpg" alt="Calendar Image 2">
+            <div class="text">
+                <p>Perfect gift for your loved ones, showcasing stunning designs.</p>
+                <p class="price">Price: zł49.99</p>
+                <button onclick="addToBasket('Calendar Image 2', 49.99)">Add to Basket</button>
+            </div>
+        </div>
+        <div class="item">
+            <img src="Nativityhouse.jpg" alt="Nativity Scene">
+            <div class="text">
+                <p>Beautifully crafted Nativity scene, ideal for Christmas decoration.</p>
+                <p class="price">Price: zł49.99</p>
+                <button onclick="addToBasket('Nativity Scene', 49.99)">Add to Basket</button>
+            </div>
+        </div>
+    </div>
+    <div id="basketModal">
+        <h2>Your Basket</h2>
+        <div id="basketContents"></div>
+        <p class="total">Total: zł<span id="basketTotal">0.00</span></p>
+        <button class="checkout-btn" onclick="showCheckoutWindow()">Proceed to Checkout</button>
+    </div>    
+    <div id="checkoutModal">
+        <h2>Checkout</h2>
+        <form>
+            <input type="text" placeholder="Card Number" required>
+            <input type="text" placeholder="Cardholder Name" required>
+            <input type="text" placeholder="Expiry Date" required>
+            <input type="text" placeholder="CVV" required>
+            <p>Your card information is secure and will not be stored.</p>
+            <button type="submit" class="checkout-btn">Complete Purchase</button>
+        </form>
+    </div>
+    <div class="overlay" onclick="toggleBasket()"></div>
+    <script>
+        let basket = [];
+        function toggleBasket() {
+            const modal = document.getElementById('basketModal');
+            const overlay = document.querySelector('.overlay');
+            if (modal.style.display === 'block') {
+                modal.style.display = 'none';
+                overlay.style.display = 'none';
+            } else {
+                modal.style.display = 'block';
+                overlay.style.display = 'block';
+                displayBasketContents();
+            }
+        }
+        function addToBasket(itemName, itemPrice) {
+            let item = basket.find(i => i.name === itemName);
+            if (item) {
+                item.quantity++;
+            } else {
+                basket.push({ name: itemName, price: itemPrice, quantity: 1 });
+            }
+            displayBasketContents();
+        }
+        function displayBasketContents() {
+            const basketContents = document.getElementById('basketContents');
+            const basketTotal = document.getElementById('basketTotal');
+            basketContents.innerHTML = '';
+            let total = 0;
+            basket.forEach(item => {
+                total += item.price * item.quantity;
+                basketContents.innerHTML += `
+                    <div class="basket-item">
+                        <img src="Nativityhouse.jpg" alt="${item.name}">
+                        <div class="details">
+                            <p>${item.name}</p>
+                            <p>$${item.price.toFixed(2)} x ${item.quantity}</p>
+                        </div>
+                        <div class="quantity-controls">
+                            <button onclick="updateQuantity('${item.name}', -1)">-</button>
+                            <button onclick="updateQuantity('${item.name}', 1)">+</button>
+                            <button onclick="removeFromBasket('${item.name}')">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+            basketTotal.textContent = total.toFixed(2);
+        }
+        function updateQuantity(itemName, change) {
+            let item = basket.find(i => i.name === itemName);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    basket = basket.filter(i => i.name !== itemName);
+                }
+                displayBasketContents();
+            }
+        }
+        function removeFromBasket(itemName) {
+            basket = basket.filter(i => i.name !== itemName);
+            displayBasketContents();
+        }
+        function showCheckoutWindow() {
+            const checkoutModal = document.getElementById('checkoutModal');
+            const overlay = document.querySelector('.overlay');
+            checkoutModal.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+        function proceedToCheckout() {
+            toggleBasket();
+            showCheckoutWindow();
+        }
+    </script>
+</body>
+</html>
